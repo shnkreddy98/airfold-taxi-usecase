@@ -174,3 +174,5 @@ cython_debug/
 .pypirc
 working_files/
 trip-data/
+.airfold
+.taxipoc
