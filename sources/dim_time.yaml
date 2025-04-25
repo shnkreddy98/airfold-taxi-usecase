@@ -1,0 +1,19 @@
+name: dim_time
+cols:
+  full_datetime: DateTime
+  date: Int8
+  time: Int8
+  hour: Int8
+  minute: Int8
+  second: Int8
+  year: Int8
+  quarter: Int8
+  month: Int8
+  day_of_month: Int8
+  day_of_week: Int8
+  day_name: String
+  is_weekend: Boolean
+  is_holiday: Boolean
+settings:
+  engine: ReplacingMergeTree()
+  order_by: "`full_datetime`"

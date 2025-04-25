@@ -1,0 +1,30 @@
+name: fact_trips
+cols:
+  trip_id: Int64
+  hvfhs_license_id: String
+  dispatching_base_id: Int64
+  originating_base_id: Int64
+  pickup_location_id: Int64
+  dropoff_location_id: Int64
+  pickup_time_id: Int64
+  dropoff_time_id: Int64
+  request_time_id: Int64
+  on_scene_time_id: Int64
+  trip_miles: Float32
+  trip_time: Float32
+  base_passenger_fare: Decimal(6, 2)
+  tolls: Float32
+  bcf: Float32
+  sales_tax: Float32
+  congestion_surcharge: Float32
+  airport_fee: Float32
+  tips: Float32
+  driver_pay: Float32
+  shared_request_flag: Boolean
+  shared_match_flag: Boolean
+  access_a_ride_flag: Boolean
+  wav_request_flag: Boolean
+  wav_match_flag: Boolean
+settings:
+  engine: MergeTree()
+  order_by: (`trip_id`)

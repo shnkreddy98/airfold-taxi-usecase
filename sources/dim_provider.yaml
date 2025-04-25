@@ -1,0 +1,7 @@
+name: dim_provider
+cols:
+  hvfhs_license_id: String
+  provider_name: String
+settings:
+  engine: MergeTree()
+  order_by: "`provider_name`"

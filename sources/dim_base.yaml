@@ -1,0 +1,7 @@
+name: dim_base
+cols:
+  base_name: String
+  base_license_number: String
+settings:
+  engine: MergeTree()
+  order_by: "`base_name`"

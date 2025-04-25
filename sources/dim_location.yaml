@@ -1,0 +1,9 @@
+name: dim_location
+cols:
+  location_id: Int64
+  zone_name: String
+  borough: String
+  service_zone: String
+settings:
+  engine: MergeTree()
+  order_by: "`borough`"
