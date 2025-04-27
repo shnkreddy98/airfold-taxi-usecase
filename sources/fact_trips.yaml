@@ -1,15 +1,15 @@
 name: fact_trips
 cols:
   trip_id: Int64
-  hvfhs_license_id: String
-  dispatching_base_id: Int64
-  originating_base_id: Int64
+  hvfhs_license_num: String
+  dispatching_base_id: String
+  originating_base_id: String
   pickup_location_id: Int64
   dropoff_location_id: Int64
-  pickup_time_id: Int64
-  dropoff_time_id: Int64
-  request_time_id: Int64
-  on_scene_time_id: Int64
+  pickup_time_id: DateTime
+  dropoff_time_id: DateTime
+  request_time_id: DateTime
+  on_scene_time_id: DateTime
   trip_miles: Float32
   trip_time: Float32
   base_passenger_fare: Decimal(6, 2)
@@ -20,11 +20,11 @@ cols:
   airport_fee: Float32
   tips: Float32
   driver_pay: Float32
-  shared_request_flag: Boolean
-  shared_match_flag: Boolean
-  access_a_ride_flag: Boolean
-  wav_request_flag: Boolean
-  wav_match_flag: Boolean
+  shared_request_flag: Nullable(Boolean)
+  shared_match_flag: Nullable(Boolean)
+  access_a_ride_flag: Nullable(Boolean)
+  wav_request_flag: Nullable(Boolean)
+  wav_match_flag: Nullable(Boolean)
 settings:
   engine: MergeTree()
   order_by: (`trip_id`)

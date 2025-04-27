@@ -1,8 +1,8 @@
 name: dim_time
 cols:
   full_datetime: DateTime
-  date: Int8
-  time: Int8
+  date: Date
+  # time: String
   hour: Int8
   minute: Int8
   second: Int8
