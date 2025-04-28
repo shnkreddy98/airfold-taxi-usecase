@@ -33,7 +33,8 @@ if __name__ == "__main__":
         idx = read_idx()
     except:
         idx = 0
-        write_idx(idx)
+
+    write_idx(idx+1)
 
     file = data_files[idx]
 
