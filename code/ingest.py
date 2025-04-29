@@ -4,9 +4,11 @@ from pandas.tseries.holiday import USFederalHolidayCalendar as calendar
 
 import logging
 import json
+import numpy as np
 import os
 import pandas as pd
 import requests
+import time
 
 load_dotenv()
 
@@ -14,9 +16,18 @@ data_dir = './trip-data'
 transformed_data_dir = os.path.join(data_dir, "new_data")
 if not os.path.exists(transformed_data_dir):
     os.makedirs(transformed_data_dir)
+last_idx_file = os.path.join(data_dir, "last_idx.txt")
+
+def read_idx():
+    with open(last_idx_file, "r") as f:
+        return int(f.read())
+
+def write_idx(idx):
+    with open(last_idx_file, "w+") as f:
+        f.write(str(idx))
 
 def append_source(table, filename):
-    logging.info("Appending {} data to airfold to table {}".format(filename,table))
+    logging.info(f"Appending Data {filename}")
     auth = os.getenv('auth_code')
 
     with open(filename, 'r') as f:
@@ -31,7 +42,7 @@ def append_source(table, filename):
         },
         json=data
     )
-    if not str(res.status_code).starts_with('2'):
+    if not str(res.status_code).startswith('2'):
         logging.error(f"Data not appended for file {filename}")
 
 def true_false_values(tablename, df):
@@ -117,20 +128,30 @@ def ingest_data(file):
     data = pd.read_parquet(os.path.join(data_dir, file))
     data = data.dropna().reset_index(drop=True)
     data = data.drop_duplicates().reset_index(drop=True)
-    data['trip_id'] = data.index
 
-    client = Client()
     step = 10000
-    end = data.shape[0]
+    total_rows = data.shape[0]
+    if not os.path.exists(last_idx_file):
+        write_idx(0)
 
-    logging.info("Starting parallel transformation")
-    for start in range(0, end, step):
-        if start+step>end:
-            client.submit(transform_data, data[start:end].copy())
-            # transform_data(data[start:end].copy())
-        else:
-            client.submit(transform_data, data[start:start+step].copy())
-            # transform_data(data[start:start+step].copy())
+    start_idx = read_idx()
+    end_idx = start_idx+total_rows
+    data['trip_id'] = np.arange(start_idx, end_idx)
+
+    # client = Client(n_workers=2, threads_per_worker=1)
+
+    # logging.info("Starting parallel transformation")
+    # futures = []
+    for idx, i in enumerate(range(0, total_rows, step)):
+        end_i = min(i + step, total_rows)
+        logging.info(f"Ingesting data part {idx} of {total_rows//step}")
+        transform_data(data[i:end_i].copy())
+        time.sleep(2)
+    write_idx(end_idx)
+    #     futures.append(future)
     
+    # for future in futures:
+    #     future.result()
+        
 if __name__=="__main__":
     ingest_data()

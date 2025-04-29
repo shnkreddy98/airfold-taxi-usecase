@@ -6,7 +6,7 @@ cols:
   hour: Int8
   minute: Int8
   second: Int8
-  year: Int8
+  year: Int16
   quarter: Int8
   month: Int8
   day_of_month: Int8
