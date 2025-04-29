@@ -1,3 +1,3 @@
 # airfold-taxi-usecase
 
-![Star Schema](working-files/StarSchema.png)
+![Star Schema](images/StarSchema.png)
