@@ -1,0 +1,33 @@
+# Create Table
+CREATE OR REPLACE TABLE trip_data
+(
+hvfhs_license_num String,
+dispatching_base_num String CODEC(ZSTD),
+originating_base_num String CODEC(ZSTD),
+request_datetime DateTime,
+on_scene_datetime DateTime,
+pickup_datetime DateTime,
+dropoff_datetime DateTime,
+PULocationID Int64 CODEC(Delta, ZSTD),
+DOLocationID Int64 CODEC(Delta, ZSTD),
+trip_miles Decimal32(4) CODEC(ZSTD),
+trip_time Decimal32(4) CODEC(ZSTD),
+base_passenger_fare Decimal32(4) CODEC(ZSTD),
+tolls Decimal32(4) CODEC(ZSTD),
+bcf Decimal32(4) CODEC(ZSTD),
+sales_tax Decimal32(4) CODEC(ZSTD),
+congestion_surcharge Decimal32(4) CODEC(ZSTD),
+airport_fee Decimal32(4) CODEC(ZSTD),
+tips Decimal32(4) CODEC(ZSTD),
+driver_pay Decimal32(4) CODEC(ZSTD),
+shared_request_flag Nullable(String) CODEC(ZSTD),
+shared_match_flag Nullable(String) CODEC(ZSTD),
+access_a_ride_flag Nullable(String) CODEC(ZSTD),
+wav_request_flag Nullable(String) CODEC(ZSTD),
+wav_match_flag Nullable(String) CODEC(ZSTD)
+)
+ENGINE = MergeTree
+ORDER BY (request_datetime, on_scene_datetime, pickup_datetime, dropoff_datetime);
+
+# Insert Data
+clickhouse-client --query="INSERT INTO trip_data FROM INFILE 'filename.parquet' FORMAT Parquet;"

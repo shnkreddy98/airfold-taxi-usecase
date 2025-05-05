@@ -1,0 +1,4 @@
+nodes:
+  - node1:
+      sql: SELECT COUNT(*) FROM trip_data
+publish: total_count

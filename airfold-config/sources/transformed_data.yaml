@@ -1,0 +1,29 @@
+name: transformed_data
+cols:
+  hvfhs_license_num: String
+  dispatching_base_num: String
+  originating_base_num: String
+  request_datetime: DateTime
+  on_scene_datetime: DateTime
+  pickup_datetime: DateTime
+  dropoff_datetime: DateTime
+  PULocationID: Int64 CODEC(Delta, ZSTD)
+  DOLocationID: Int64 CODEC(Delta, ZSTD)
+  trip_miles: Decimal(9,4) CODEC(ZSTD)
+  trip_time: Decimal(9,4) CODEC(ZSTD)
+  base_passenger_fare: Decimal(9,4) CODEC(ZSTD)
+  tolls: Decimal(9,4) CODEC(ZSTD)
+  bcf: Decimal(9,4) CODEC(ZSTD)
+  sales_tax: Decimal(9,4) CODEC(ZSTD)
+  congestion_surcharge: Decimal(9,4) CODEC(ZSTD)
+  airport_fee: Decimal(9,4) CODEC(ZSTD)
+  tips: Decimal(9,4) CODEC(ZSTD)
+  driver_pay: Decimal(9,4) CODEC(ZSTD)
+  shared_request_flag: Boolean
+  shared_match_flag: Boolean
+  access_a_ride_flag: Nullable(Boolean)
+  wav_request_flag: Boolean
+  wav_match_flag: Boolean
+settings:
+  engine: MergeTree
+  order_by: (`request_datetime`, `on_scene_datetime`, `pickup_datetime`, `dropoff_datetime`)

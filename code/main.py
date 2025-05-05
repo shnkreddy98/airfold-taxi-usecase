@@ -10,6 +10,6 @@ if __name__ == "__main__":
     data_files = [file for file in os.listdir("./trip-data") if file.endswith(".parquet")]
     for idx, file in enumerate(data_files):
         logging.info(f"Ingesting {idx+1} of {len(data_files)} files")
-        logging.info(f"Ingesting {file} to airfold")
+        logging.info(f"Ingesting {file}")
         ingest_data(file)
         logging.info("Data Ingested")

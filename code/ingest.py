@@ -13,7 +13,7 @@ import time
 load_dotenv()
 
 data_dir = './trip-data'
-transformed_data_dir = os.path.join(data_dir, "new_data")
+transformed_data_dir = os.path.join(data_dir, "json_data")
 if not os.path.exists(transformed_data_dir):
     os.makedirs(transformed_data_dir)
 last_idx_file = os.path.join(data_dir, "last_idx.txt")
@@ -27,7 +27,7 @@ def write_idx(idx):
         f.write(str(idx))
 
 def append_source(table, filename):
-    logging.info(f"Appending Data {filename}")
+    logging.info(f"Appending Data {filename} to Airfold")
     auth = os.getenv('auth_code')
 
     with open(filename, 'r') as f:
@@ -120,16 +120,18 @@ def transform_data(data):
     # fact_trips.to_csv(fact_trips_filename, index=False)
 
     # Call af source append
-    append_source("dim_time", dim_time_filename)
-    append_source("fact_trips", fact_trips_filename)
+    # append_source("dim_time", dim_time_filename)
+    # append_source("fact_trips", fact_trips_filename)
 
 
 def ingest_data(file):
     data = pd.read_parquet(os.path.join(data_dir, file))
     data = data.dropna().reset_index(drop=True)
     data = data.drop_duplicates().reset_index(drop=True)
+    data = data[data['hvfhs_license_num']=='HV0003'].copy()
+    data = data.sample(10000, random_state=1)
 
-    step = 10000
+    step = 1000
     total_rows = data.shape[0]
     if not os.path.exists(last_idx_file):
         write_idx(0)
@@ -145,7 +147,12 @@ def ingest_data(file):
     for idx, i in enumerate(range(0, total_rows, step)):
         end_i = min(i + step, total_rows)
         logging.info(f"Ingesting data part {idx} of {total_rows//step}")
-        transform_data(data[i:end_i].copy())
+        # transform_data(data[i:end_i].copy())
+        # data[i:end_i].to_json(os.path.join(transformed_data_dir, f"data_{i}_{end_i}.json"))
+        new_data = data[i:end_i]
+        filename = os.path.join(transformed_data_dir, f"data_{start_idx+i}_{start_idx+end_i}.json")
+        new_data.to_json(filename, orient='records')
+        append_source("trip_data", filename)
         time.sleep(2)
     write_idx(end_idx)
     #     futures.append(future)
