@@ -1,5 +1,6 @@
 name: trip_data
 cols:
+  trip_id: Int128
   hvfhs_license_num: String
   dispatching_base_num: String
   originating_base_num: String

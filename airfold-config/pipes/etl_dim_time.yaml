@@ -1,0 +1,33 @@
+nodes:
+  - extract:
+      sql: SELECT * FROM fact_trips
+  - load:
+      sql: |
+        WITH complete_datetime_cte AS
+            (SELECT request_datetime AS complete_datetime FROM trip_data
+            UNION DISTINCT
+            SELECT on_scene_datetime AS complete_datetime FROM trip_data
+            UNION DISTINCT
+            SELECT pickup_datetime AS complete_datetime FROM trip_data
+            UNION DISTINCT
+            SELECT dropoff_datetime AS complete_datetime FROM trip_data) 
+        SELECT 
+            complete_datetime AS full_datetime,
+            toDate(complete_datetime) AS date,
+            toHour(complete_datetime) AS hour,
+            toMinute(complete_datetime) AS minute,
+            toSecond(complete_datetime) AS second,
+            toYear(complete_datetime) AS year,
+            toQuarter(complete_datetime) AS quarter,
+            toMonth(complete_datetime) AS month,
+            toDayOfMonth(complete_datetime) AS day_of_month,
+            toDayOfWeek(complete_datetime) AS day_of_week,
+            arrayElement(array('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'), toDayOfWeek(complete_datetime)) AS day_name,
+            CASE WHEN toDayOfWeek(complete_datetime) > 5
+                THEN true
+                ELSE false END AS is_weekend
+        FROM complete_datetime_cte
+to: dim_time
+refresh:
+  strategy: replace
+  interval: EVERY 5 MONTH

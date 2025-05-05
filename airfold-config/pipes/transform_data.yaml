@@ -3,7 +3,7 @@ nodes:
       sql: SELECT * FROM trip_data
   - transform:
       sql:
-        SELECT `hvfhs_license_num`, `dispatching_base_num`, `originating_base_num`, `request_datetime`,
+        SELECT `trip_id`, `hvfhs_license_num`, `dispatching_base_num`, `originating_base_num`, `request_datetime`,
         `on_scene_datetime`, `pickup_datetime`, `dropoff_datetime`, `PULocationID`, `DOLocationID`,
         `trip_miles`, `trip_time`, `base_passenger_fare`, `tolls`, `bcf`, `sales_tax`, `congestion_surcharge`,
         `airport_fee`, `tips`, `driver_pay`,

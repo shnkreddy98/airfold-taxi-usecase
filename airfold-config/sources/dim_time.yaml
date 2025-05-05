@@ -3,17 +3,16 @@ cols:
   full_datetime: DateTime
   date: Date
   # time: String
-  hour: Int8
-  minute: Int8
-  second: Int8
-  year: Int16
-  quarter: Int8
-  month: Int8
-  day_of_month: Int8
-  day_of_week: Int8
+  hour: UInt8
+  minute: UInt8
+  second: UInt8
+  year: UInt16
+  quarter: UInt8
+  month: UInt8
+  day_of_month: UInt8
+  day_of_week: UInt8
   day_name: String
   is_weekend: Boolean
-  is_holiday: Boolean
 settings:
   engine: ReplacingMergeTree()
   order_by: "`full_datetime`"
