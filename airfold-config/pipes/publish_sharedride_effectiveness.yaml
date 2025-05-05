@@ -1,0 +1,27 @@
+nodes:
+  - sharedride_effectiveness:
+      sql: |
+        SELECT 
+            dp.provider_name,
+            COUNT(*) as total_requests,
+            COUNT(CASE WHEN ft.shared_request_flag = 'Y' THEN 1 END) as shared_requests,
+            COUNT(CASE WHEN ft.shared_request_flag = 'Y' THEN 1 END) * 100.0 / COUNT(*) as shared_request_rate,
+            COUNT(CASE WHEN ft.shared_match_flag = 'Y' THEN 1 END) as successful_matches,
+            COUNT(CASE WHEN ft.shared_match_flag = 'Y' THEN 1 END) * 100.0 / 
+                NULLIF(COUNT(CASE WHEN ft.shared_request_flag = 'Y' THEN 1 END), 0) as match_success_rate,
+            AVG(CASE WHEN ft.shared_match_flag = 'Y' THEN ft.base_passenger_fare END) as avg_shared_fare,
+            AVG(CASE WHEN ft.shared_match_flag = 'N' AND ft.shared_request_flag = 'N' THEN ft.base_passenger_fare END) as avg_solo_fare
+        FROM fact_trips ft
+        JOIN dim_provider dp ON ft.hvfhs_license_num = dp.hvfhs_license_id
+        JOIN dim_time dt ON ft.pickup_time_id = dt.full_datetime
+        WHERE dt.year = {{year}} AND dt.month = {{month}}
+        GROUP BY dp.provider_name
+        ORDER BY total_requests DESC
+publish: sharedRideEffectiveness
+params:
+  - name: year
+    type: int
+    default: 2023
+  - name: month
+    type: int
+    default: 1

@@ -1,0 +1,24 @@
+nodes:
+  - demand_pattern:
+      sql: |
+        SELECT 
+            dt.hour,
+            COUNT(*) as request_count,
+            AVG(ft.base_passenger_fare) as avg_fare
+        FROM fact_trips ft
+        JOIN dim_time dt ON ft.request_time_id = dt.full_datetime
+        WHERE dt.date BETWEEN {{start_date}} AND {{end_date}}
+          AND dt.day_of_week IN ({{selected_day_of_week}})
+        GROUP BY dt.hour
+        ORDER BY dt.hour
+publish: todDemandPattern
+params:
+  - name: start_date
+    type: date
+    default: "2023-01-01"
+  - name: end_date
+    type: date
+    default: "2023-01-30"
+  - name: selected_day_of_week
+    type: int
+    default: 1

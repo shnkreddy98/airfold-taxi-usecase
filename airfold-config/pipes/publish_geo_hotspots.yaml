@@ -1,0 +1,22 @@
+nodes:
+  - geographical_hotspots:
+      sql: |
+        SELECT 
+           dl.zone_name, 
+           dl.borough,
+           COUNT(*) as pickup_count
+         FROM fact_trips ft
+         JOIN dim_location dl ON ft.pickup_location_id = dl.location_id
+         JOIN dim_time dt ON ft.pickup_time_id = dt.full_datetime
+         WHERE dt.year = {{year}} AND dt.month = {{month}}
+         GROUP BY dl.zone_name, dl.borough
+         ORDER BY pickup_count DESC
+         LIMIT 20
+publish: geographicalHotspots
+params:
+  - name: year
+    type: int
+    default: 2023
+  - name: month
+    type: int
+    default: 1

@@ -1,0 +1,35 @@
+nodes:
+  - accessible_vehicles_analysis:
+      sql: |
+        SELECT 
+            dt.year,
+            dt.month,
+            SUM(CASE WHEN ft.wav_request_flag = 'Y' THEN 1 ELSE 0 END) as wav_requests,
+            SUM(CASE WHEN ft.wav_match_flag = 'Y' THEN 1 ELSE 0 END) as wav_trips_fulfilled,
+            SUM(CASE WHEN ft.wav_match_flag = 'Y' THEN 1 ELSE 0 END) * 100.0 / 
+                NULLIF(SUM(CASE WHEN ft.wav_request_flag = 'Y' THEN 1 ELSE 0 END), 0) as wav_fulfillment_rate,
+            AVG(CASE WHEN ft.wav_match_flag = 'Y' THEN 
+                EXTRACT(EPOCH FROM 
+                    (SELECT dt_pickup.full_datetime FROM Dim_Time dt_pickup WHERE ft.pickup_time_id = dt_pickup.time_id) -
+                    (SELECT dt_request.full_datetime FROM Dim_Time dt_request WHERE ft.request_time_id = dt_request.time_id)
+                )
+            END) as avg_wav_wait_time_seconds,
+            AVG(CASE WHEN ft.wav_match_flag = 'N' AND ft.wav_request_flag = 'N' THEN
+                EXTRACT(EPOCH FROM 
+                    (SELECT dt_pickup.full_datetime FROM Dim_Time dt_pickup WHERE ft.pickup_time_id = dt_pickup.time_id) -
+                    (SELECT dt_request.full_datetime FROM Dim_Time dt_request WHERE ft.request_time_id = dt_request.time_id)
+                )
+            END) as avg_standard_wait_time_seconds
+        FROM Fact_Trips ft
+        JOIN Dim_Time dt ON ft.pickup_time_id = dt.time_id
+        WHERE dt.year = {{year}} AND dt.month BETWEEN {{start_month}} AND {{end_month}}
+        GROUP BY dt.year, dt.month
+        ORDER BY dt.year, dt.month
+publish: sharedRideEffectiveness
+params:
+  - name: year
+    type: int
+    default: 2023
+  - name: month
+    type: int
+    default: 1

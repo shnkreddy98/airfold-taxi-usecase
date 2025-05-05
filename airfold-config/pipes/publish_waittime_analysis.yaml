@@ -1,0 +1,38 @@
+nodes:
+  - waittime_analysis:
+      sql: |
+        SELECT
+            dp.provider_name,
+            dl.borough,
+            AVG(
+                dateDiff(
+                    'second',
+                    dt_request.full_datetime,
+                    dt_pickup.full_datetime
+                )
+            ) AS avg_wait_time_seconds
+        FROM fact_trips AS ft
+        JOIN dim_provider AS dp
+          ON ft.hvfhs_license_num = dp.hvfhs_license_id
+        JOIN dim_location AS dl
+          ON ft.pickup_location_id = dl.location_id
+        JOIN dim_time AS dt_request
+          ON ft.request_time_id = dt_request.full_datetime
+        JOIN dim_time AS dt_pickup
+          ON ft.pickup_time_id = dt_pickup.full_datetime
+        WHERE dt_pickup.year = {{year}}
+          AND dt_pickup.month = {{month}}
+        GROUP BY
+            dp.provider_name,
+            dl.borough
+        ORDER BY
+            dp.provider_name,
+            avg_wait_time_seconds DESC
+publish: waitTimeAnalysis
+params:
+  - name: year
+    type: int
+    default: 2023
+  - name: month
+    type: int
+    default: 1

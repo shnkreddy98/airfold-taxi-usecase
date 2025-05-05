@@ -1,5 +1,5 @@
 nodes:
-  - trip_volume_trends:
+  - volume_trends:
       sql: |
         SELECT 
             dt.year, 

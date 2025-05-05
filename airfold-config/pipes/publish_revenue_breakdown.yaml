@@ -1,0 +1,30 @@
+nodes:
+  - revenue_breakdown:
+      sql: |
+        SELECT 
+          dt.year,
+          dt.month,
+          dp.provider_name,
+          SUM(ft.base_passenger_fare) as total_base_fare,
+          SUM(ft.tolls) as total_tolls,
+          SUM(ft.bcf) as total_black_car_fund,
+          SUM(ft.sales_tax) as total_sales_tax,
+          SUM(ft.congestion_surcharge) as total_congestion_surcharge,
+          SUM(ft.airport_fee) as total_airport_fees,
+          SUM(ft.tips) as total_tips,
+          SUM(ft.base_passenger_fare + ft.tolls + ft.bcf + ft.sales_tax + 
+              ft.congestion_surcharge + ft.airport_fee + ft.tips) as total_revenue
+        FROM fact_trips ft
+        JOIN dim_time dt ON ft.pickup_time_id = dt.full_datetime
+        JOIN dim_provider dp ON ft.hvfhs_license_num = dp.hvfhs_license_id
+        WHERE dt.year = {{year}} AND dt.month = {{month}}
+        GROUP BY dt.year, dt.month, dp.provider_name
+        ORDER BY dt.year, dt.month, total_revenue DESC
+publish: revenueBreakdown
+params:
+  - name: year
+    type: int
+    default: 2023
+  - name: month
+    type: int
+    default: 1
