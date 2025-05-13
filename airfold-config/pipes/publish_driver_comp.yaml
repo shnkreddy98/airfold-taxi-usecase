@@ -2,28 +2,24 @@ nodes:
   - driver_compensation:
       sql: |
         SELECT
-            dp.provider_name,
-            AVG(ft.driver_pay) AS avg_driver_pay_per_trip,
+            provider_name,
+            AVG(driver_pay) AS avg_driver_pay_per_trip,
             AVG(
-                ft.driver_pay
-                / toFloat64(if(ft.trip_miles = 0, NULL, ft.trip_miles))
+                driver_pay
+                / toFloat64(if(trip_miles = 0, NULL, trip_miles))
             ) AS avg_pay_per_mile,
             AVG(
-                ft.driver_pay
-                / toFloat64(if(ft.trip_time  = 0, NULL, ft.trip_time))
+                driver_pay
+                / toFloat64(if(trip_time  = 0, NULL, trip_time))
                 * 3600
             ) AS avg_hourly_pay_estimate
-        FROM fact_trips AS ft
-        JOIN dim_provider AS dp
-            ON ft.hvfhs_license_num = dp.hvfhs_license_id
-        JOIN dim_time AS dt
-            ON ft.pickup_time_id     = dt.full_datetime
+        FROM DN_trip_data
         WHERE
-              dt.year  = {{inp_year}}
-          AND dt.month = {{inp_month}}
-          AND ft.trip_miles  > 0
-          AND ft.trip_time   > 0
-        GROUP BY dp.provider_name
+              toYear(pickup_datetime) = {{inp_year}}
+          AND toMonth(pickup_datetime) = {{inp_month}}
+          AND trip_miles  > 0
+          AND trip_time   > 0
+        GROUP BY provider_name
         ORDER BY avg_driver_pay_per_trip DESC
 publish: driverCompensation
 params:

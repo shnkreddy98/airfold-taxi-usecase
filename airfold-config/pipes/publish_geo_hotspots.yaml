@@ -2,14 +2,12 @@ nodes:
   - geographical_hotspots:
       sql: |
         SELECT 
-           dl.zone_name, 
-           dl.borough,
+           pickup_zone_name, 
+           pickup_borough,
            COUNT(*) as pickup_count
-         FROM fact_trips ft
-         JOIN dim_location dl ON ft.pickup_location_id = dl.location_id
-         JOIN dim_time dt ON ft.pickup_time_id = dt.full_datetime
-         WHERE dt.year = {{year}} AND dt.month = {{month}}
-         GROUP BY dl.zone_name, dl.borough
+         FROM DN_trip_data
+         WHERE toYear(pickup_datetime) = {{year}} AND toMonth(pickup_datetime) = {{month}}
+         GROUP BY pickup_zone_name, pickup_borough
          ORDER BY pickup_count DESC
          LIMIT 20
 publish: geographicalHotspots

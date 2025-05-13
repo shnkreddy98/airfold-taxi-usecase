@@ -1,0 +1,16 @@
+name: monthly_revenue
+cols:
+  year: Int32
+  month: UInt8
+  provider_name: String
+  total_base_fare: Decimal(38,4)
+  total_tolls: Decimal(38,4)
+  total_black_car_fund: Decimal(38,4)
+  total_sales_tax: Decimal(38,4)
+  total_congestion_surcharge: Decimal(38,4)
+  total_airport_fees: Decimal(38,4)
+  total_tips: Decimal(38,4)
+  total_revenue: Decimal(38,4)
+settings:
+  engine: ReplacingMergeTree()
+  order_by: "(`year`, `month`)"

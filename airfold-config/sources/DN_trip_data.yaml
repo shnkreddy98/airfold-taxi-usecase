@@ -1,15 +1,17 @@
-name: transformed_data
+name: DN_trip_data
 cols:
   trip_id: Int128
-  hvfhs_license_num: String
-  dispatching_base_num: String
-  originating_base_num: String
+  provider_name: String
   request_datetime: DateTime
   on_scene_datetime: DateTime
   pickup_datetime: DateTime
   dropoff_datetime: DateTime
-  PULocationID: Int64 CODEC(Delta, ZSTD)
-  DOLocationID: Int64 CODEC(Delta, ZSTD)
+  pickup_zone_name: String
+  pickup_borough: String
+  pickup_service_zone: String
+  dropoff_zone_name: String
+  dropoff_borough: String
+  dropoff_service_zone: String
   trip_miles: Decimal(9,4) CODEC(ZSTD)
   trip_time: Decimal(9,4) CODEC(ZSTD)
   base_passenger_fare: Decimal(9,4) CODEC(ZSTD)

@@ -1,0 +1,15 @@
+nodes:
+  - load_seasonal_trends:
+      sql: |
+        SELECT 
+            toYear(pickup_datetime) AS year,
+            toMonth(pickup_datetime) AS month,
+            COUNT(*) as trip_count,
+            SUM(trip_miles) as total_miles,
+            AVG(base_passenger_fare) as avg_fare
+        FROM DN_trip_data
+        GROUP BY year, month
+to: seasonal_trends
+refresh:
+  strategy: replace
+  interval: EVERY 1 MINUTE

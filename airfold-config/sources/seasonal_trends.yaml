@@ -1,0 +1,10 @@
+name: seasonal_trends
+cols:
+  year: Int64
+  month: UInt8
+  trip_count: UInt64
+  total_miles: Decimal(38,4)
+  avg_fare: Float64
+settings:
+  engine: ReplacingMergeTree()
+  order_by: "(`year`, `month`)"

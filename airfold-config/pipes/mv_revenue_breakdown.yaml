@@ -1,0 +1,22 @@
+nodes:
+  - revenue_breakdown:
+      sql: |
+        SELECT 
+          toYear(pickup_datetime) AS year,
+          toMonth(pickup_datetime) AS month,
+          provider_name,
+          SUM(base_passenger_fare) as total_base_fare,
+          SUM(tolls) as total_tolls,
+          SUM(bcf) as total_black_car_fund,
+          SUM(sales_tax) as total_sales_tax,
+          SUM(congestion_surcharge) as total_congestion_surcharge,
+          SUM(airport_fee) as total_airport_fees,
+          SUM(tips) as total_tips,
+          SUM(base_passenger_fare + tolls + bcf + sales_tax + 
+              congestion_surcharge + airport_fee + tips) as total_revenue
+        FROM DN_trip_data
+        GROUP BY year, month, provider_name
+to: monthly_revenue
+refresh:
+  strategy: replace
+  interval: EVERY 1 MONTH

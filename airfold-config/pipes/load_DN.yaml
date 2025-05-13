@@ -1,0 +1,68 @@
+nodes:
+  - load_transformed_data:
+      sql: |
+        SELECT
+            td.trip_id,
+            p.provider_name,
+            td.request_datetime,
+            td.on_scene_datetime,
+            td.pickup_datetime,
+            td.dropoff_datetime,
+            pul.zone_name AS pickup_zone_name,
+            pul.borough AS pickup_borough,
+            pul.service_zone AS pickup_service_zone,
+            dol.zone_name AS dropoff_zone_name,
+            dol.borough AS dropoff_borough,
+            dol.service_zone AS dropoff_service_zone,
+            td.trip_miles,
+            td.trip_time,
+            td.base_passenger_fare,
+            td.tolls,
+            td.bcf,
+            td.sales_tax,
+            td.congestion_surcharge,
+            td.airport_fee,
+            td.tips,
+            td.driver_pay,
+            CASE
+            WHEN `shared_request_flag`='Y'
+            THEN true
+            ELSE false
+            END AS shared_request_flag,
+            CASE
+            WHEN `shared_match_flag`='Y'
+            THEN true
+            ELSE false
+            END AS shared_match_flag,
+            CASE
+            WHEN `access_a_ride_flag`='Y'
+            THEN true
+            WHEN `access_a_ride_flag`='N'
+            THEN false
+            ELSE NULL
+            END AS access_a_ride_flag,
+            CASE
+            WHEN `wav_request_flag`='Y'
+            THEN true
+            ELSE false
+            END AS wav_request_flag,
+            CASE
+            WHEN `wav_match_flag`='Y'
+            THEN true
+            ELSE false
+            END AS wav_match_flag,
+        FROM trip_data td
+        LEFT JOIN dim_provider p
+        ON td.hvfhs_license_num=p.hvfhs_license_id
+        LEFT JOIN dim_base db
+        ON td.dispatching_base_num=db.base_license_number
+        LEFT JOIN dim_base ob
+        ON td.originating_base_num=ob.base_license_number
+        LEFT JOIN dim_location pul
+        ON td.PULocationID=pul.location_id
+        LEFT JOIN dim_location dol
+        ON td.DOLocationID=dol.location_id
+to: DN_trip_data
+refresh:
+  strategy: replace
+  interval: EVERY 1 MINUTE

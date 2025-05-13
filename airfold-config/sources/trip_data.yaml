@@ -1,9 +1,8 @@
 name: trip_data
 cols:
-  trip_id: Int128
-  hvfhs_license_num: String
-  dispatching_base_num: String
-  originating_base_num: String
+  hvfhs_license_num: LowCardinality(String)
+  dispatching_base_num: LowCardinality(String)
+  originating_base_num: LowCardinality(String)
   request_datetime: DateTime
   on_scene_datetime: DateTime
   pickup_datetime: DateTime
@@ -20,11 +19,11 @@ cols:
   airport_fee: Decimal32(4) CODEC(ZSTD)
   tips: Decimal32(4) CODEC(ZSTD)
   driver_pay: Decimal32(4) CODEC(ZSTD)
-  shared_request_flag: Nullable(String)
-  shared_match_flag: Nullable(String)
-  access_a_ride_flag: Nullable(String)
-  wav_request_flag: Nullable(String)
-  wav_match_flag: Nullable(String)
+  shared_request_flag: String
+  shared_match_flag: String
+  access_a_ride_flag: String
+  wav_request_flag: String
+  wav_match_flag: String
 settings:
-  engine: MergeTree
+  engine: MergeTree()
   order_by: (`request_datetime`, `on_scene_datetime`, `pickup_datetime`, `dropoff_datetime`)
