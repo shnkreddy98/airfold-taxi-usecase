@@ -16,7 +16,6 @@ data_dir = './trip-data'
 transformed_data_dir = os.path.join(data_dir, "json_data")
 if not os.path.exists(transformed_data_dir):
     os.makedirs(transformed_data_dir)
-last_idx_file = os.path.join(data_dir, "last_idx.txt")
 
 def read_idx(file):
     with open(file, "r") as f:
@@ -47,7 +46,7 @@ def append_source(table, filename):
     if not str(res.status_code).startswith('2'):
         logging.error(f"Data not appended for file {filename}")
 
-def ingest_data(file):
+def ingest_data(file, last_idx_file, part):
     data = pd.read_parquet(os.path.join(data_dir, file))
     data = data.dropna().reset_index(drop=True)
     data = data.drop_duplicates().reset_index(drop=True)
@@ -67,7 +66,7 @@ def ingest_data(file):
         try:
             logging.info(f"Ingesting data part {idx} of {total_rows//step}")
             new_data = data[i:i+step]
-            filename = os.path.join(transformed_data_dir, f"data_{i}_{i+step}.json")
+            filename = os.path.join(transformed_data_dir, f"data_{part}_{i}_{i+step}.json")
             new_data.to_json(filename, orient='records')
             append_source("trip_data", filename)
             write_idx(last_idx_file, i)
