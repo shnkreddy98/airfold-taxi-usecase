@@ -1,0 +1,22 @@
+name: trip_metrics
+description: "Track trip completion metrics for operational efficiency"
+nodes:
+  - extract:
+      description: Calculate trip completion times and cancellation rates
+      sql: |
+        SELECT
+          toDate(request_datetime) AS date,
+          provider_name,
+          COUNT(*) AS total_requests,
+          countIf(pickup_datetime IS NOT NULL) AS completed_pickups,
+          countIf(dropoff_datetime IS NOT NULL) AS completed_trips,
+          AVG(IF(pickup_datetime IS NOT NULL, dateDiff('second', request_datetime, pickup_datetime), NULL)) AS avg_pickup_wait_seconds,
+          AVG(IF(on_scene_datetime IS NOT NULL, dateDiff('second', request_datetime, on_scene_datetime), NULL)) AS avg_driver_arrival_seconds,
+          countIf(pickup_datetime IS NULL) / COUNT(*) AS cancellation_rate
+        FROM DN_trip_data
+        GROUP BY date, provider_name
+        ORDER BY date DESC, provider_name
+to: trip_completion_metrics
+refresh:
+  strategy: replace
+  interval: EVERY 1 MONTH

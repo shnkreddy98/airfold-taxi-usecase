@@ -2,7 +2,6 @@ nodes:
   - load_transformed_data:
       sql: |
         SELECT
-            td.trip_id,
             p.provider_name,
             td.request_datetime,
             td.on_scene_datetime,
@@ -54,10 +53,6 @@ nodes:
         FROM trip_data td
         LEFT JOIN dim_provider p
         ON td.hvfhs_license_num=p.hvfhs_license_id
-        LEFT JOIN dim_base db
-        ON td.dispatching_base_num=db.base_license_number
-        LEFT JOIN dim_base ob
-        ON td.originating_base_num=ob.base_license_number
         LEFT JOIN dim_location pul
         ON td.PULocationID=pul.location_id
         LEFT JOIN dim_location dol
@@ -65,4 +60,4 @@ nodes:
 to: DN_trip_data
 refresh:
   strategy: replace
-  interval: EVERY 1 MINUTE
+  interval: EVERY 1 MONTH

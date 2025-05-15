@@ -1,0 +1,55 @@
+name: pricing_analysis
+description: "Analyze pricing factors and anomalies"
+nodes:
+  - data:
+      description: Extract pricing data with trip details
+      sql: |
+        SELECT
+          pickup_borough,
+          dropoff_borough,
+          toHour(pickup_datetime) AS hour_of_day,
+          toDayOfWeek(pickup_datetime) AS day_of_week,
+          shared_match_flag,
+          trip_miles,
+          trip_time,
+          base_passenger_fare,
+          tolls,
+          congestion_surcharge,
+          tips,
+          driver_pay,
+          (base_passenger_fare + COALESCE(tolls, 0) + COALESCE(bcf, 0) + 
+           COALESCE(sales_tax, 0) + COALESCE(congestion_surcharge, 0) + 
+           COALESCE(airport_fee, 0)) AS total_fare_no_tip
+        FROM DN_trip_data
+        WHERE pickup_datetime >= subtractDays(now(), {{ days_back }})
+          AND trip_miles > 0
+          AND base_passenger_fare > 0
+  - pricing_metrics:
+      description: Calculate pricing metrics
+      sql: |
+        SELECT
+          pickup_borough,
+          dropoff_borough,
+          hour_of_day,
+          day_of_week,
+          shared_match_flag,
+          AVG(base_passenger_fare / trip_miles) AS avg_fare_per_mile,
+          AVG(base_passenger_fare / trip_time) AS avg_fare_per_minute,
+          AVG(driver_pay / base_passenger_fare) AS avg_driver_commission_rate,
+          AVG(tips / total_fare_no_tip) AS avg_tip_percentage,
+          quantile(0.5)(base_passenger_fare / trip_miles) AS median_fare_per_mile,
+          quantile(0.9)(base_passenger_fare / trip_miles) AS p90_fare_per_mile,
+          COUNT(*) AS trip_count
+        FROM data
+        GROUP BY
+          pickup_borough,
+          dropoff_borough,
+          hour_of_day,
+          day_of_week,
+          shared_match_flag
+publish: pricing_analysis
+params:
+  - name: days_back
+    type: int
+    default: 30
+    description: "Number of days to look back"

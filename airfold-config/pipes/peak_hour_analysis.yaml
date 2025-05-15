@@ -1,0 +1,37 @@
+name: peak_hours_analysis
+description: "Analyze peak ridership hours by borough"
+nodes:
+  - data:
+      description: Extract hourly trip data
+      sql: |
+        SELECT
+          toHour(pickup_datetime) AS hour_of_day,
+          pickup_borough,
+          COUNT(*) AS trip_count,
+          AVG(base_passenger_fare) AS avg_fare
+        FROM DN_trip_data
+        WHERE pickup_datetime BETWEEN {{ start_date }} AND {{ end_date }}
+        GROUP BY hour_of_day, pickup_borough
+        ORDER BY hour_of_day, pickup_borough
+  - peaks:
+      description: Identify peak hours by borough
+      sql: |
+        SELECT
+          pickup_borough,
+          hour_of_day,
+          trip_count,
+          avg_fare,
+          row_number() OVER (PARTITION BY pickup_borough ORDER BY trip_count DESC) AS rank
+        FROM data
+        QUALIFY rank <= 3
+        ORDER BY pickup_borough, rank
+publish: peak_hours
+params:
+  - name: start_date
+    type: string
+    default: "2024-01-01"
+    description: "Start date (format: YYYY-MM-DD)"
+  - name: end_date
+    type: string
+    default: "2024-12-31"
+    description: "End date (format: YYYY-MM-DD)"

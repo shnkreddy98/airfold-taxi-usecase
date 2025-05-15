@@ -1,0 +1,47 @@
+name: accessibility_service_analysis
+description: "Analyze accessibility service performance"
+nodes:
+  - data:
+      description: Extract accessibility service data
+      sql: |
+        SELECT
+          toDate(pickup_datetime) AS date,
+          pickup_borough,
+          COUNT(*) AS total_trips,
+          countIf(wav_request_flag = true) AS wav_requested,
+          countIf(wav_match_flag = true) AS wav_matched,
+          countIf(access_a_ride_flag = true) AS access_a_ride,
+          AVG(IF(wav_request_flag = true AND wav_match_flag = true, 
+              dateDiff('second', request_datetime, pickup_datetime), NULL)) AS avg_wav_wait_time,
+          AVG(IF(wav_request_flag = true, base_passenger_fare, NULL)) AS avg_wav_fare,
+          AVG(IF(access_a_ride_flag = true, base_passenger_fare, NULL)) AS avg_access_a_ride_fare
+        FROM DN_trip_data
+        WHERE pickup_datetime BETWEEN {{ start_date }} AND {{ end_date }}
+        GROUP BY date, pickup_borough
+        ORDER BY date, pickup_borough
+  - metrics:
+      description: Calculate service rates and performance
+      sql: |
+        SELECT
+          date,
+          pickup_borough,
+          total_trips,
+          wav_requested,
+          wav_matched,
+          access_a_ride,
+          ROUND(wav_matched / NULLIF(wav_requested, 0), 4) AS wav_fulfillment_rate,
+          avg_wav_wait_time,
+          avg_wav_fare,
+          avg_access_a_ride_fare
+        FROM data
+        ORDER BY date DESC, pickup_borough
+publish: accessibility_metrics
+params:
+  - name: start_date
+    type: string
+    default: "2023-01-01"
+    description: "Start date in YYYY-MM-DD format"
+  - name: end_date
+    type: string
+    default: "2025-12-31"
+    description: "End date in YYYY-MM-DD format"

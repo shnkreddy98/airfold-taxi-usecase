@@ -1,6 +1,5 @@
 name: DN_trip_data
 cols:
-  trip_id: Int128
   provider_name: String
   request_datetime: DateTime
   on_scene_datetime: DateTime

@@ -1,0 +1,14 @@
+name: hourly_metrics
+cols:
+  hour: DateTime
+  pickup_borough: String
+  trip_count: UInt64
+  avg_miles: Float64
+  avg_trip_time: Float64
+  avg_fare: Float64
+  avg_driver_pay: Float64
+  avg_tips: Float64
+  total_congestion_fees: Decimal(38, 4)
+settings:
+  engine: MergeTree()
+  order_by: "`hour`"

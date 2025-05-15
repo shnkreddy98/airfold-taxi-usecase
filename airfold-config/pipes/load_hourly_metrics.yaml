@@ -1,0 +1,22 @@
+name: hourly_trip_metrics
+description: "Analyze hourly trip metrics by borough for fast dashboard access"
+nodes:
+  - extract:
+      description: Extract and format trip data with timestamps
+      sql: |
+        SELECT
+          toStartOfHour(pickup_datetime) AS hour,
+          pickup_borough,
+          COUNT(*) AS trip_count,
+          AVG(trip_miles) AS avg_miles,
+          AVG(trip_time) AS avg_trip_time,
+          AVG(base_passenger_fare) AS avg_fare,
+          AVG(driver_pay) AS avg_driver_pay,
+          AVG(tips) AS avg_tips,
+          SUM(congestion_surcharge) AS total_congestion_fees
+        FROM DN_trip_data
+        GROUP BY hour, pickup_borough
+to: hourly_metrics
+refresh:
+  strategy: replace
+  interval: EVERY 1 MONTH

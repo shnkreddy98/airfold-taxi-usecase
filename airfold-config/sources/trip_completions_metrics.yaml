@@ -1,0 +1,13 @@
+name: trip_completion_metrics
+cols:
+  date: Date
+  provider_name: String
+  total_requests: UInt64
+  completed_pickups: UInt64
+  completed_trips: UInt64
+  avg_pickup_wait_seconds: Nullable(Float64)
+  avg_driver_arrival_seconds: Nullable(Float64)
+  cancellation_rate: Float64
+settings:
+  engine: MergeTree()
+  order_by: "`date`"

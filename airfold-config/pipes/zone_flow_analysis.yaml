@@ -1,0 +1,55 @@
+name: zone_flow_analysis
+description: "Analyze trip flows between zones for transportation planning"
+nodes:
+  - data:
+      description: Extract zone-to-zone flow data
+      sql: |
+        SELECT
+          pickup_zone_name,
+          pickup_borough,
+          dropoff_zone_name,
+          dropoff_borough,
+          COUNT(*) AS trip_count,
+          AVG(trip_miles) AS avg_miles,
+          AVG(trip_time) AS avg_minutes,
+          AVG(base_passenger_fare) AS avg_fare
+        FROM DN_trip_data
+        WHERE pickup_datetime BETWEEN {{ start_date }} AND {{ end_date }}
+          {% if borough != 'all' %}
+          AND (pickup_borough = '{{ borough }}' OR dropoff_borough = '{{ borough }}')
+          {% endif %}
+        GROUP BY pickup_zone_name, pickup_borough, dropoff_zone_name, dropoff_borough
+  - top_flows:
+      description: Identify top flow corridors
+      sql: |
+        SELECT
+          pickup_zone_name,
+          pickup_borough,
+          dropoff_zone_name,
+          dropoff_borough,
+          trip_count,
+          avg_miles,
+          avg_minutes,
+          avg_fare,
+          ROUND(avg_fare / NULLIF(avg_miles, 0), 2) AS fare_per_mile
+        FROM data
+        ORDER BY trip_count DESC
+        LIMIT {{ limit }}
+publish: zone_flows
+params:
+  - name: start_date
+    type: string
+    default: "2025-05-01"
+    description: "Start date in YYYY-MM-DD format"
+  - name: end_date
+    type: string
+    default: "2025-05-14"
+    description: "End date in YYYY-MM-DD format"
+  - name: borough
+    type: string
+    default: "all"
+    description: 'Filter for specific borough (or "all")'
+  - name: limit
+    type: int
+    default: 20
+    description: "Number of top corridors to return"
